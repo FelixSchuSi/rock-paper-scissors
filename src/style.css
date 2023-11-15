@@ -1,0 +1,14 @@
+body {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: lightgray;
+  overflow-y: hidden;
+}
+
+.main-content {
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  background-color: white;
+}
