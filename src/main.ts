@@ -11,7 +11,7 @@ const itemWidth = measureTextResult.width;
 const itemHeight =
   measureTextResult.actualBoundingBoxAscent +
   measureTextResult.actualBoundingBoxDescent;
-
+let gameFinished = false;
 let items: Item[] = [
   generateRandomItem("✂️"),
   generateRandomItem("✂️"),
@@ -51,14 +51,7 @@ interface Item {
 
 function drawItems() {
   clearCanvas();
-
-  items.forEach((item) => {
-    context.fillText(item.text, item.x, item.y);
-    drawPixel(item.x, item.y);
-    drawPixel(item.x + itemWidth, item.y);
-    drawPixel(item.x + itemWidth, item.y + itemHeight);
-    drawPixel(item.x, item.y + itemHeight);
-  });
+  items.forEach((item) => context.fillText(item.text, item.x, item.y));
 }
 
 function clearCanvas() {
@@ -68,17 +61,16 @@ function clearCanvas() {
   context.textBaseline = "top";
 }
 
-function drawPixel(x: number, y: number) {
-  const id = context.createImageData(1, 1);
-  const d = id.data;
-  d[0] = 255;
-  d[1] = 0;
-  d[2] = 0;
-  d[3] = 255;
-  context.putImageData(id, x, y);
+function drawFinalScreen() {
+  if (gameFinished || !items.every((item) => item.text === items[0].text))
+    return;
 
-  context.fillStyle = "rgba(255,0,0,1)";
-  context.fillRect(x, y, 1, 1);
+  gameFinished = true;
+  const finalScreenElement = document.querySelector(
+    `.${items[0].text}`
+  ) as HTMLDivElement;
+  finalScreenElement.classList.remove("hidden");
+  context.filter = "blur(4px)";
 }
 
 const STATE_CHANGES = new Map([
@@ -164,6 +156,8 @@ function tick() {
   }
 
   drawItems();
+  drawFinalScreen();
+
   window.requestAnimationFrame(tick);
 }
 
