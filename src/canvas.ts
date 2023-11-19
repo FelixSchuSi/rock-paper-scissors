@@ -75,18 +75,18 @@ class Canvas {
     canvas.context.filter = "blur(4px)";
   }
 
-  private drawPixel(x: number, y: number) {
-    const id = this.context.createImageData(1, 1);
-    const d = id.data;
-    d[0] = 255;
-    d[1] = 0;
-    d[2] = 0;
-    d[3] = 255;
-    this.context.putImageData(id, x, y);
+  // private drawPixel(x: number, y: number) {
+  //   const id = this.context.createImageData(1, 1);
+  //   const d = id.data;
+  //   d[0] = 255;
+  //   d[1] = 0;
+  //   d[2] = 0;
+  //   d[3] = 255;
+  //   this.context.putImageData(id, x, y);
 
-    this.context.fillStyle = "rgba(255,0,0,1)";
-    this.context.fillRect(x, y, 1, 1);
-  }
+  //   this.context.fillStyle = "rgba(255,0,0,1)";
+  //   this.context.fillRect(x, y, 1, 1);
+  // }
 }
 
 export const canvas = new Canvas();
