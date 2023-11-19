@@ -2,7 +2,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100svh;
   width: 100vw;
   margin: 0;
   background-color: lightgray;
@@ -11,8 +11,8 @@ body {
 }
 
 .main-content {
-  height: min(100vh, 100vw * 16 / 9);
-  width: min(100vw, 100vh * 9 / 16);
+  height: min(100svh, 100vw * 16 / 9);
+  width: min(100vw, 100svh * 9 / 16);
   background-color: white;
   justify-items: center;
   align-items: center;
