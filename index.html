@@ -8,13 +8,25 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪨</text></svg>"
     />
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div class="main-content">
       <canvas id="canvas"></canvas>
-      <div class="final-screen hidden 🪨">🪨 won!</div>
-      <div class="final-screen hidden 📃">📃 won!</div>
-      <div class="final-screen hidden ✂️">✂️ won!</div>
+      <div class="final-screen hidden 🪨">
+        <span> <img class="rock" src="/src/rock.png" alt="rock" /> won!</span>
+        <a href="/rock-paper-scissors/">restart</a>
+      </div>
+      <div class="final-screen hidden 📃">
+        <span><img class="paper" src="/src/paper.png" alt="paper" /> won!</span>
+        <a href="/rock-paper-scissors/">restart</a>
+      </div>
+      <div class="final-screen hidden ✂️">
+        <span>
+          <img class="scissors" src="/src/scissors.png" alt="scissors" />won!
+        </span>
+        <a href="/rock-paper-scissors/">restart</a>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,16 +1,10 @@
-import "./style.css";
+import { canvas } from "./canvas";
 
-const canvasElement = document.querySelector("canvas") as HTMLCanvasElement;
-const context = canvasElement.getContext("2d")!;
-const mainContentElement = document.querySelector(
-  ".main-content"
-) as HTMLDivElement;
-clearCanvas();
-const measureTextResult = context.measureText("🪨");
-const itemWidth = measureTextResult.width;
-const itemHeight =
-  measureTextResult.actualBoundingBoxAscent +
-  measureTextResult.actualBoundingBoxDescent;
+const itemWidth = 32;
+const itemHeight = 32;
+const simulationSizeX = 450;
+const simulationSizeY = 800;
+
 let gameFinished = false;
 let items: Item[] = [
   generateRandomItem("✂️"),
@@ -29,48 +23,20 @@ function generateRandomItem(text?: Item["text"]): Item {
     text:
       text ??
       (["🪨", "📃", "✂️"][Math.floor(Math.random() * 3)] as Item["text"]),
-    x: Math.random() * (mainContentElement.clientWidth - itemWidth),
-    y: Math.random() * (mainContentElement.clientHeight - itemHeight),
+    x: Math.random() * (simulationSizeX - itemWidth),
+    y: Math.random() * (simulationSizeY - itemHeight),
     dx: Math.random() * 5,
     dy: Math.random() * 5,
   };
   return item;
 }
-function fullsizeCanvas() {
-  canvasElement.width = mainContentElement.clientWidth;
-  canvasElement.height = mainContentElement.clientHeight;
-}
 
-interface Item {
+export interface Item {
   text: "🪨" | "📃" | "✂️";
   x: number;
   y: number;
   dx: number;
   dy: number;
-}
-
-function drawItems() {
-  clearCanvas();
-  items.forEach((item) => context.fillText(item.text, item.x, item.y));
-}
-
-function clearCanvas() {
-  context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  context.font = "32px Arial";
-  context.textAlign = "left";
-  context.textBaseline = "top";
-}
-
-function drawFinalScreen() {
-  if (gameFinished || !items.every((item) => item.text === items[0].text))
-    return;
-
-  gameFinished = true;
-  const finalScreenElement = document.querySelector(
-    `.${items[0].text}`
-  ) as HTMLDivElement;
-  finalScreenElement.classList.remove("hidden");
-  context.filter = "blur(4px)";
 }
 
 const STATE_CHANGES = new Map([
@@ -94,10 +60,10 @@ function tick() {
     if (y + dy < 0) {
       dy = -dy;
     }
-    if (x + dx + itemWidth > canvasElement.width) {
+    if (x + dx + itemWidth > simulationSizeX) {
       dx = -dx;
     }
-    if (y + dy + itemHeight > canvasElement.height) {
+    if (y + dy + itemHeight > simulationSizeY) {
       dy = -dy;
     }
 
@@ -155,11 +121,13 @@ function tick() {
     }
   }
 
-  drawItems();
-  drawFinalScreen();
+  canvas.drawItems(items);
+  if (!gameFinished && items.every((item) => item.text === items[0].text)) {
+    gameFinished = true;
+    canvas.drawFinalScreen(items);
+  }
 
   window.requestAnimationFrame(tick);
 }
 
-fullsizeCanvas();
 tick();
