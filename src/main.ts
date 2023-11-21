@@ -1,7 +1,5 @@
-import { canvas } from "./canvas";
-import { tick } from "./tick";
-
-console.log(canvas, tick);
+import { PreparationPhaseController } from "./preparation-phase-controller";
+import { start } from "./tick";
 
 export interface Item {
   text: "🪨" | "📃" | "✂️";
@@ -16,4 +14,10 @@ export interface Point {
   y: number;
 }
 
-// tick();
+let preparationPhaseController: PreparationPhaseController | undefined =
+  new PreparationPhaseController();
+
+window.addEventListener("prep-phase-complete", (event) => {
+  preparationPhaseController = undefined;
+  start(event.detail);
+});

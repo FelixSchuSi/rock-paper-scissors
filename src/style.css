@@ -10,8 +10,7 @@ body {
   overflow-x: hidden;
 }
 
-.main-content,
-canvas {
+.main-content.prep-phase-active {
   cursor: none;
 }
 

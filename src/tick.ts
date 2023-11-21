@@ -15,14 +15,15 @@ let items: Item[] = [
   generateRandomItem("✂️"),
   generateRandomItem("📃"),
   generateRandomItem("📃"),
+  generateRandomItem("📃"),
 ];
 
-window.addEventListener("prep-phase-complete", (event) => {
-  items.push(...event.detail);
+export function start(stones: Item[]) {
+  items.push(...stones);
   tick();
-});
+}
 
-export function tick() {
+function tick() {
   items.forEach((item) => {
     if (item.x + item.dx < 0) {
       item.dx = -item.dx;
@@ -90,6 +91,7 @@ export function tick() {
     }
   }
 
+  canvas.clear();
   canvas.drawItems(items);
   if (!gameFinished && items.every((item) => item.text === items[0].text)) {
     gameFinished = true;
