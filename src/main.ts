@@ -17,6 +17,12 @@ export interface Point {
 let preparationPhaseController: PreparationPhaseController | undefined =
   new PreparationPhaseController();
 
+const registry = new FinalizationRegistry((heldValue) => {
+  console.log("GCing", heldValue);
+});
+
+registry.register(preparationPhaseController, "preparation-phase-controller");
+
 window.addEventListener("prep-phase-complete", (event) => {
   preparationPhaseController = undefined;
   start(event.detail);
