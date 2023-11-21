@@ -15,11 +15,12 @@ let items: Item[] = [
   generateRandomItem("✂️"),
   generateRandomItem("📃"),
   generateRandomItem("📃"),
-  generateRandomItem("📃"),
-  generateRandomItem("🪨"),
-  generateRandomItem("🪨"),
-  generateRandomItem("🪨"),
 ];
+
+window.addEventListener("prep-phase-complete", (event) => {
+  items.push(...event.detail);
+  tick();
+});
 
 export function tick() {
   items.forEach((item) => {

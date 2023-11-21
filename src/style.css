@@ -10,6 +10,11 @@ body {
   overflow-x: hidden;
 }
 
+.main-content,
+canvas {
+  cursor: none;
+}
+
 .main-content {
   height: min(100svh, 100vw * 16 / 9);
   width: min(100vw, 100svh * 9 / 16);

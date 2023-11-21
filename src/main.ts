@@ -1,4 +1,7 @@
+import { canvas } from "./canvas";
 import { tick } from "./tick";
+
+console.log(canvas, tick);
 
 export interface Item {
   text: "🪨" | "📃" | "✂️";
@@ -8,4 +11,9 @@ export interface Item {
   dy: number;
 }
 
-tick();
+export interface Point {
+  x: number;
+  y: number;
+}
+
+// tick();
