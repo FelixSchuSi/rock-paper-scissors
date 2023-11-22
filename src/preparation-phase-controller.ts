@@ -28,10 +28,24 @@ export class PreparationPhaseController {
       (e) => this.onMouseDown(e),
       abortSignal
     );
-    window.addEventListener("mouseup", () => this.onMouseUp(), abortSignal);
+    window.addEventListener("mouseup", (e) => this.onMouseUp(e), abortSignal);
+    window.addEventListener(
+      "touchstart",
+      (e) => this.onMouseDown(e),
+      abortSignal
+    );
+    window.addEventListener("touchend", (e) => this.onMouseUp(e), abortSignal);
+    window.addEventListener(
+      "touchmove",
+      (e) => {
+        this.onMouseMove1(e);
+        this.onMouseMove2(e);
+      },
+      abortSignal
+    );
   }
 
-  private onMouseMove1(e: MouseEvent): void {
+  private onMouseMove1(e: MouseEvent | TouchEvent): void {
     if (!this.isInPrepPhase) return;
     if (this.isMouseDown) return;
     const mousePosition = canvas.getMousePosition(e);
@@ -46,17 +60,15 @@ export class PreparationPhaseController {
     canvas.drawItems(this.prepItems, true);
   }
 
-  private onMouseMove2(e: MouseEvent): void {
+  private onMouseMove2(e: MouseEvent | TouchEvent): void {
     if (!this.isInPrepPhase) return;
     if (!this.isMouseDown) return;
     const mousePosition = canvas.getMousePosition(e);
 
     const lastItem = this.prepItems[this.prepItems.length - 1];
 
-    lastItem.dx =
-      (this.mouseDownPoint.x - mousePosition.x) / MAX_INITIAL_VELOCITY;
-    lastItem.dy =
-      (this.mouseDownPoint.y - mousePosition.y) / MAX_INITIAL_VELOCITY;
+    lastItem.dx = (this.mouseDownPoint.x - mousePosition.x) / 5;
+    lastItem.dy = (this.mouseDownPoint.y - mousePosition.y) / 5;
     const dist = Math.sqrt(lastItem.dx ** 2 + lastItem.dy ** 2);
 
     if (dist > MAX_INITIAL_VELOCITY) {
@@ -69,8 +81,16 @@ export class PreparationPhaseController {
     canvas.drawItems(this.prepItems, true);
   }
 
-  private onMouseDown(e: MouseEvent): void {
+  private onMouseDown(e: MouseEvent | TouchEvent): void {
     if (!this.isInPrepPhase) return;
+
+    // A mobile user is using two fingers
+    // In that case we place the item between the two fingers
+    // We also need to remove the item that was placed by the first finger
+    if (this.isMouseDown) {
+      this.prepItems.pop();
+      canvas.clear();
+    }
 
     this.isMouseDown = true;
     this.mouseDownPoint = canvas.getMousePosition(e);
@@ -84,8 +104,10 @@ export class PreparationPhaseController {
     canvas.drawItems(this.prepItems, true);
   }
 
-  private onMouseUp(): void {
+  private onMouseUp(e: MouseEvent | TouchEvent): void {
     if (!this.isInPrepPhase) return;
+    if (!this.isMouseDown) return;
+    if (e instanceof TouchEvent && e.touches.length > 0) return;
     this.isMouseDown = false;
     if (this.prepItems.length < 3) return;
 

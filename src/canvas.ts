@@ -86,10 +86,33 @@ class Canvas {
     finalScreenElement.classList.remove("hidden");
   }
 
-  public getMousePosition(evt: MouseEvent): Point {
+  public getMousePosition(e: MouseEvent | TouchEvent): Point {
+    let x = 0;
+    let y = 0;
+
+    if (e instanceof TouchEvent) {
+      if (e.touches.length === 1) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      } else {
+        x =
+          Array.from(e.touches).reduce((acc, touch) => acc + touch.clientX, 0) /
+          e.touches.length;
+
+        y =
+          Array.from(e.touches).reduce((acc, touch) => acc + touch.clientY, 0) /
+          e.touches.length;
+      }
+    }
+
+    if (e instanceof MouseEvent) {
+      x = e.clientX;
+      y = e.clientY;
+    }
+
     return {
-      x: evt.clientX - this.canvasRect.left,
-      y: evt.clientY - this.canvasRect.top,
+      x: (x - this.canvasRect.left) / this.canvasScaleY - ITEM_RADIUS,
+      y: (y - this.canvasRect.top) / this.canvasScaleY - ITEM_RADIUS,
     };
   }
 }
