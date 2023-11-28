@@ -1,6 +1,7 @@
 import { canvas } from "./canvas";
-import { MAX_INITIAL_VELOCITY } from "./constants";
-import type { Item, Point } from "./main";
+import { MAX_INITIAL_VELOCITY } from "../../shared/src/constants";
+import { Point } from "../../shared/src/types/point";
+import { Item } from "../../shared/src/types/item";
 
 export class PreparationPhaseController {
   private isMouseDown = false;

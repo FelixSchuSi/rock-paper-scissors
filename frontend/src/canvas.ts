@@ -1,13 +1,15 @@
+import { ICanvas } from "../../shared/src/types/canvas";
 import {
   ARROW_DRAW_SIZE_FACTOR,
   ITEM_RADIUS,
   ITEM_WIDTH,
   SIMULATION_HEIGHT,
   SIMULATION_WIDTH,
-} from "./constants";
-import type { Item, Point } from "./main";
+} from "../../shared/src/constants";
+import { Item } from "../../shared/src/types/item";
+import { Point } from "../../shared/src/types/point";
 
-class Canvas {
+class Canvas implements ICanvas {
   private readonly canvas = document.querySelector(
     "canvas"
   ) as HTMLCanvasElement;
@@ -82,7 +84,8 @@ class Canvas {
     const finalScreenElement = document.querySelector(
       `.${items[0].text}`
     ) as HTMLDivElement;
-    canvas.context.filter = "blur(4px)";
+
+    this.canvas.classList.add("blurry");
     finalScreenElement.classList.remove("hidden");
   }
 

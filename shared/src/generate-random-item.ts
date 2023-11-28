@@ -1,5 +1,5 @@
 import { SIMULATION_WIDTH, SIMULATION_HEIGHT, ITEM_WIDTH } from "./constants";
-import type { Item } from "./main";
+import { Item } from "./types/item";
 
 export function generateRandomItem(text?: Item["text"]): Item {
   return {
