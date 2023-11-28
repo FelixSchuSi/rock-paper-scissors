@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    // "skipLibCheck": true,
+
+    /* Bundler mode */
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "bun-types" // add Bun global
+    ]
+  },
+  "include": ["src", "../shared/src"]
+}
