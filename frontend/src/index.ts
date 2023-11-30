@@ -2,7 +2,7 @@ import { getTick } from "../../shared/src/tick";
 import { canvas } from "./canvas";
 import { PreparationPhaseController } from "./preparation-phase-controller";
 
-const userId = crypto.randomUUID();
+const playerId = crypto.randomUUID();
 // let preparationPhaseController: PreparationPhaseController | undefined =
 //   new PreparationPhaseController();
 
@@ -29,14 +29,12 @@ async function createRoom() {
   const respose = await fetch("/create-room", {
     method: "POST",
     body: JSON.stringify({
-      name: userId,
-      icon: "🪨",
-      playerId: userId,
+      name: playerId,
+      playerId: playerId,
     }),
   });
   const content = await respose.json();
   console.log(content);
-
   const socket = new WebSocket("ws://localhost:3000/join-room");
   socket.addEventListener("message", (event) => {
     console.log(event.data);
@@ -48,14 +46,13 @@ async function joinRoom() {
     method: "POST",
     body: JSON.stringify({
       roomId: (document.querySelector(".room-id") as HTMLInputElement).value,
-      name: userId,
-      icon: "✂️",
-      playerId: userId,
+      name: playerId,
+      playerId: playerId,
     }),
   });
   const content = await respose.json();
-  console.log(content);
-
+  debugger;
+  document.querySelector(".start-screen")!.classList.add("hidden");
   const socket = new WebSocket("ws://localhost:3000/join-room");
   socket.addEventListener("message", (event) => {
     console.log(event.data);
