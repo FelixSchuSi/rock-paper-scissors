@@ -3,6 +3,7 @@ import { Room } from "./types/room";
 export const WebSocketMessageType = Object.freeze({
   PLAYER_PLACED_ITEM: "PLAYER_PLACED_ITEM",
   PLAYER_JOINED: "PLAYER_JOINED",
+  ALL_PLAYERS_JOINED: "ALL_PLAYERS_JOINED",
 });
 
 export type WebSocketMessageType =

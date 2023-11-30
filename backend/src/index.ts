@@ -30,16 +30,16 @@ const server = Bun.serve<PlayerSession>({
       return await postHandleStart(req);
     }
     if (url.pathname === "/create-room" && req.method === "POST") {
-      return await postCreateRoom(req, server);
+      return await postCreateRoom(req);
     }
     if (url.pathname === "/join-room" && req.method === "POST") {
-      return await postJoinRoom(req, server);
+      return await postJoinRoom(req);
     }
     if (url.pathname === "/join-room" && req.method === "GET") {
       return await getJoinRoom(req, server);
     }
     if (FRONTEND_FILES.has(url.pathname) && req.method === "GET") {
-      return new Response(Bun.file(`../frontend/public${url.pathname}`));
+      return new Response(Bun.file(`frontend/public${url.pathname}`));
     }
 
     return new Response("Not Found", { status: 404 });
@@ -75,10 +75,19 @@ const server = Bun.serve<PlayerSession>({
       };
 
       server.publish(roomId, JSON.stringify(message));
+      const allPlayersJoinedMessage: WebSocketMessage = {
+        type: WebSocketMessageType.ALL_PLAYERS_JOINED,
+        data: {
+          message: `All players joined`,
+        },
+        fromPlayerId: "",
+        room,
+      };
+      server.publish(roomId, JSON.stringify(allPlayersJoinedMessage));
       ws.subscribe(roomId);
     },
     // a socket is closed
-    close(ws, code, message) {},
+    // close(ws, code, message) {},
     // the socket is ready to receive more data
     // drain(ws) {},
   },
@@ -104,10 +113,7 @@ async function postHandleStart(request: Request): Promise<Response> {
   return new Response(JSON.stringify({ items, initialItems, resultHash }));
 }
 
-async function postCreateRoom(
-  request: Request,
-  server: Server
-): Promise<Response> {
+async function postCreateRoom(request: Request): Promise<Response> {
   const { name, icon, playerId } = await request.json();
   const roomId = crypto.randomUUID();
   const room: Room = {
@@ -125,11 +131,8 @@ async function postCreateRoom(
   return new Response(JSON.stringify(room), { status: 200, headers });
 }
 
-async function postJoinRoom(
-  request: Request,
-  server: Server
-): Promise<Response> {
-  const { roomId, name, icon, playerId } = await request.json();
+async function postJoinRoom(request: Request): Promise<Response> {
+  const { roomId, name, playerId } = await request.json();
 
   const room = rooms.get(roomId);
   if (!room) {
@@ -138,6 +141,8 @@ async function postJoinRoom(
   if (room.players.length >= 3) {
     return new Response("Room is full", { status: 400 });
   }
+
+  const icon = ["🪨", "✂️", "📃"][room.players.length] as "🪨" | "✂️" | "📃";
   room.players.push({ playerId, name, icon });
 
   const headers = new Headers();
