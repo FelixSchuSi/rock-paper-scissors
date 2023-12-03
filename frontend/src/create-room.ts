@@ -21,7 +21,7 @@ export async function createRoom() {
   console.log(content);
   document.querySelector(".start-screen")!.classList.add("hidden");
   const socket = new WebSocket(
-    `${location.protocol === "https://" ? "wss://" : "ws://"}${
+    `${location.protocol === "https:" ? "wss://" : "ws://"}${
       location.hostname
     }${location.port !== "" ? `:${location.port}` : ""}/join-room`
   );
