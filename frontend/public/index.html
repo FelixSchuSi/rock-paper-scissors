@@ -15,10 +15,24 @@
     <div class="main-content">
       <canvas id="canvas hidden"></canvas>
       <div class="start-screen">
-        <button class="create-room">create room</button>
-
-        <input type="text" class="room-id" placeholder="room id" />
-        <button class="join-room">join room</button>
+        <div class="start-screen-wrapper">
+          <h1>rock paper scissors</h1>
+          <p>totally trash game with rocks and papers and scissors</p>
+          <h2>create room</h1>
+          <div class="row">
+            <input
+              type="text"
+              class="create-room-name"
+              placeholder="your name"
+            /><button class="create-room">create room</button>
+          </div>
+          <h2>join room</h1>
+          <div class="row">
+            <input type="text" class="join-room-name" placeholder="your name" />
+            <input type="text" class="room-id" placeholder="room id" />
+            <button class="join-room">join room</button>
+          </div>
+        </div>
       </div>
       <div class="final-screen hidden 🪨">
         <span> <img class="rock" src="/rock.png" alt="rock" /> won!</span>
