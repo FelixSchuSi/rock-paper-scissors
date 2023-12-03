@@ -19,6 +19,10 @@ export async function joinRoom() {
   STATE.playerIcon = content.player.icon;
   STATE.playerName = content.player.name;
   STATE.room = content.room;
+
+  document.querySelector(".invite-code")!.textContent = content.room.roomId;
+  document.querySelector(".invite-screen")!.classList.remove("hidden");
+
   document.querySelector(".start-screen")!.classList.add("hidden");
   const socket = new WebSocket(
     `${location.protocol === "https:" ? "wss://" : "ws://"}${

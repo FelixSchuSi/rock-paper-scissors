@@ -18,6 +18,8 @@ export async function createRoom() {
   STATE.playerName = content.player.name;
   STATE.room = content.room;
 
+  document.querySelector(".invite-code")!.textContent = content.room.roomId;
+  document.querySelector(".invite-screen")!.classList.remove("hidden");
   console.log(content);
   document.querySelector(".start-screen")!.classList.add("hidden");
   const socket = new WebSocket(

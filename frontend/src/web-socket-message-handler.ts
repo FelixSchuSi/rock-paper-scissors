@@ -32,6 +32,7 @@ export function webSocketMessageHandler(event: MessageEvent<string>) {
 }
 
 function handleAllPlayersJoined() {
+  document.querySelector(".invite-screen")!.classList.add("hidden");
   preparationPhaseController = new PreparationPhaseController();
   preparationPhaseController.activePlayerItem = "🪨";
 }

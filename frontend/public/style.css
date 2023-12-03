@@ -36,7 +36,8 @@ body {
 
 .final-screen,
 canvas,
-.start-screen {
+.start-screen,
+.invite-screen {
   grid-area: main;
 }
 

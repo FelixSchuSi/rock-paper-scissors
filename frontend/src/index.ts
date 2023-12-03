@@ -11,3 +11,6 @@ export const STATE = new (class {
 
 document.querySelector(".create-room")?.addEventListener("click", createRoom);
 document.querySelector(".join-room")?.addEventListener("click", joinRoom);
+document.querySelector(".copy-invite-code")!.addEventListener("click", () => {
+  navigator.clipboard.writeText(STATE.room!.roomId);
+});
