@@ -1,66 +1,13 @@
-import { getTick } from "../../shared/src/tick";
-import { canvas } from "./canvas";
-import { PreparationPhaseController } from "./preparation-phase-controller";
+import { Room } from "../../shared/src/types/room";
+import { createRoom } from "./create-room";
+import { joinRoom } from "./join-room";
 
-const playerId = crypto.randomUUID();
-// let preparationPhaseController: PreparationPhaseController | undefined =
-//   new PreparationPhaseController();
-
-// const registry = new FinalizationRegistry((heldValue) => {
-//   console.log("GCing", heldValue);
-// });
-
-// registry.register(preparationPhaseController, "preparation-phase-controller");
-
-// window.addEventListener("prep-phase-complete", async (event) => {
-//   preparationPhaseController = undefined;
-
-//   const respose = await fetch("/start", {
-//     method: "POST",
-//     body: JSON.stringify(event.detail),
-//   });
-//   const { initialItems } = await respose.json();
-//   const { tick } = getTick(initialItems, canvas, window);
-
-//   tick();
-// });
-
-async function createRoom() {
-  const respose = await fetch("/create-room", {
-    method: "POST",
-    body: JSON.stringify({
-      name: playerId,
-      playerId: playerId,
-    }),
-  });
-  const content = await respose.json();
-  console.log(content);
-  const socket = new WebSocket("ws://localhost:3000/join-room");
-  socket.addEventListener("message", (event) => {
-    console.log(event.data);
-  });
-}
-
-async function joinRoom() {
-  const respose = await fetch("/join-room", {
-    method: "POST",
-    body: JSON.stringify({
-      roomId: (document.querySelector(".room-id") as HTMLInputElement).value,
-      name: playerId,
-      playerId: playerId,
-    }),
-  });
-  const content = await respose.json();
-  debugger;
-  document.querySelector(".start-screen")!.classList.add("hidden");
-  const socket = new WebSocket("ws://localhost:3000/join-room");
-  socket.addEventListener("message", (event) => {
-    console.log(event.data);
-  });
-  socket.addEventListener("open", () => {
-    socket.send("hello");
-  });
-}
+export const STATE = new (class {
+  public readonly playerId = crypto.randomUUID();
+  public playerIcon: "🪨" | "✂️" | "📃" | undefined;
+  public playerName: string | undefined;
+  public room: Room | undefined;
+})();
 
 document.querySelector(".create-room")?.addEventListener("click", createRoom);
 document.querySelector(".join-room")?.addEventListener("click", joinRoom);

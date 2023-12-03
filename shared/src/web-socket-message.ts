@@ -1,9 +1,11 @@
 import { Room } from "./types/room";
 
 export const WebSocketMessageType = Object.freeze({
-  PLAYER_PLACED_ITEM: "PLAYER_PLACED_ITEM",
+  ROOM_CREATED: "ROOM_CREATED",
   PLAYER_JOINED: "PLAYER_JOINED",
   ALL_PLAYERS_JOINED: "ALL_PLAYERS_JOINED",
+  PLAYER_PLACED_ITEM: "PLAYER_PLACED_ITEM",
+  ALL_ITEMS_PLACED: "ALL_ITEMS_PLACED",
 });
 
 export type WebSocketMessageType =

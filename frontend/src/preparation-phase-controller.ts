@@ -2,16 +2,37 @@ import { canvas } from "./canvas";
 import { MAX_INITIAL_VELOCITY } from "../../shared/src/constants";
 import { Point } from "../../shared/src/types/point";
 import { Item } from "../../shared/src/types/item";
+import { STATE } from ".";
 
 export class PreparationPhaseController {
   private isMouseDown = false;
   private isInPrepPhase = true;
   private mouseDownPoint: Point = { x: 0, y: 0 };
-  private readonly prepItems: Item[] = [];
+  private prepItems: Item[] = [];
+  private _activePlayerItem: Item["text"] = "🪨";
   private readonly abortController = new AbortController();
   private readonly mainContentElement = document.querySelector(
     ".main-content"
   ) as HTMLDivElement;
+
+  private isItPlayersTurn: boolean = false;
+
+  public set activePlayerItem(value: "🪨" | "📃" | "✂️") {
+    this._activePlayerItem = value;
+    this.isItPlayersTurn = value === STATE.playerIcon;
+    console.log(this._activePlayerItem, this.isItPlayersTurn, value);
+
+    if (this.isItPlayersTurn) {
+      this.mainContentElement.classList.add("is-players-turn");
+    } else {
+      this.mainContentElement.classList.remove("is-players-turn");
+    }
+  }
+
+  public anotherPlayerPlacedItem(items: Item[]): void {
+    this.prepItems = items;
+    canvas.drawItems(this.prepItems, true);
+  }
 
   constructor() {
     this.mainContentElement.classList.add("prep-phase-active");
@@ -47,12 +68,13 @@ export class PreparationPhaseController {
   }
 
   private onMouseMove1(e: MouseEvent | TouchEvent): void {
+    if (!this.isItPlayersTurn) return;
     if (!this.isInPrepPhase) return;
     if (this.isMouseDown) return;
     const mousePosition = canvas.getMousePosition(e);
     canvas.clear();
     canvas.drawItem({
-      text: "🪨",
+      text: this._activePlayerItem,
       x: mousePosition.x,
       y: mousePosition.y,
       dx: 0,
@@ -62,6 +84,7 @@ export class PreparationPhaseController {
   }
 
   private onMouseMove2(e: MouseEvent | TouchEvent): void {
+    if (!this.isItPlayersTurn) return;
     if (!this.isInPrepPhase) return;
     if (!this.isMouseDown) return;
     const mousePosition = canvas.getMousePosition(e);
@@ -83,6 +106,7 @@ export class PreparationPhaseController {
   }
 
   private onMouseDown(e: MouseEvent | TouchEvent): void {
+    if (!this.isItPlayersTurn) return;
     if (!this.isInPrepPhase) return;
 
     // A mobile user is using two fingers
@@ -96,7 +120,7 @@ export class PreparationPhaseController {
     this.isMouseDown = true;
     this.mouseDownPoint = canvas.getMousePosition(e);
     this.prepItems.push({
-      text: "🪨",
+      text: this._activePlayerItem,
       x: this.mouseDownPoint.x,
       y: this.mouseDownPoint.y,
       dx: 0,
@@ -106,15 +130,22 @@ export class PreparationPhaseController {
   }
 
   private onMouseUp(e: MouseEvent | TouchEvent): void {
+    if (!this.isItPlayersTurn) return;
     if (!this.isInPrepPhase) return;
     if (!this.isMouseDown) return;
     if (e instanceof TouchEvent && e.touches.length > 0) return;
     this.isMouseDown = false;
-    if (this.prepItems.length < 3) return;
+    window.dispatchEvent(
+      new CustomEvent("item-placed", { detail: this.prepItems })
+    );
+  }
 
+  public completePrepPhase(): void {
     this.isInPrepPhase = false;
     this.mainContentElement.classList.remove("prep-phase-active");
+    this.mainContentElement.classList.remove("is-players-turn");
     this.abortController.abort();
+
     window.dispatchEvent(
       new CustomEvent("prep-phase-complete", { detail: this.prepItems })
     );
@@ -123,6 +154,7 @@ export class PreparationPhaseController {
 
 declare global {
   interface WindowEventMap {
+    "item-placed": CustomEvent<Item[]>;
     "prep-phase-complete": CustomEvent<Item[]>;
   }
 }

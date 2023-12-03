@@ -10,12 +10,11 @@ import {
   WebSocketMessageType,
 } from "../../shared/src/web-socket-message";
 import { getAllFrontendFiles } from "./get-all-frontend-files";
+import { Player } from "../../shared/src/types/player";
+import { handlePlayerPlacedItem } from "./handle-player-placed-items.ts";
 
-interface PlayerSession {
+export interface PlayerSession extends Player {
   roomId: string;
-  name: string;
-  icon: "🪨" | "✂️" | "📃";
-  playerId: string;
 }
 
 const FRONTEND_FILES = getAllFrontendFiles();
@@ -46,10 +45,17 @@ const server = Bun.serve<PlayerSession>({
   },
   websocket: {
     message(ws, message) {
-      const data = ws.data;
-      console.log("data", data);
-      console.log("message", message);
-      // server.publish(data.roomId, message);
+      const webSocketMessage = JSON.parse(
+        message as string
+      ) as WebSocketMessage;
+      const playerSession = ws.data;
+      const room = rooms.get(playerSession.roomId);
+
+      if (room === undefined) return;
+
+      if (webSocketMessage.type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
+        handlePlayerPlacedItem(playerSession, webSocketMessage, room, server);
+      }
     },
     open(ws) {
       const { roomId, name, icon, playerId } = ws.data;
@@ -75,6 +81,9 @@ const server = Bun.serve<PlayerSession>({
       };
 
       server.publish(roomId, JSON.stringify(message));
+      ws.subscribe(roomId);
+
+      if (room.players.length < 3) return;
       const allPlayersJoinedMessage: WebSocketMessage = {
         type: WebSocketMessageType.ALL_PLAYERS_JOINED,
         data: {
@@ -84,7 +93,6 @@ const server = Bun.serve<PlayerSession>({
         room,
       };
       server.publish(roomId, JSON.stringify(allPlayersJoinedMessage));
-      ws.subscribe(roomId);
     },
     // a socket is closed
     // close(ws, code, message) {},
@@ -114,21 +122,25 @@ async function postHandleStart(request: Request): Promise<Response> {
 }
 
 async function postCreateRoom(request: Request): Promise<Response> {
-  const { name, icon, playerId } = await request.json();
+  const { name, playerId } = await request.json();
   const roomId = crypto.randomUUID();
+  const player = { name, icon: "🪨", playerId } as Player;
   const room: Room = {
     roomId,
     items: [],
-    players: [{ name, icon, playerId }],
+    players: [player],
   };
   rooms.set(roomId, room);
 
   const headers = new Headers();
   headers.append("Set-Cookie", `roomId=${roomId}`);
   headers.append("Set-Cookie", `name=${name}`);
-  headers.append("Set-Cookie", `icon=${encodeURIComponent(icon)}`);
+  headers.append("Set-Cookie", `icon=${encodeURIComponent("🪨")}`);
   headers.append("Set-Cookie", `playerId=${playerId}`);
-  return new Response(JSON.stringify(room), { status: 200, headers });
+  return new Response(JSON.stringify({ room, player }), {
+    status: 200,
+    headers,
+  });
 }
 
 async function postJoinRoom(request: Request): Promise<Response> {
@@ -142,15 +154,19 @@ async function postJoinRoom(request: Request): Promise<Response> {
     return new Response("Room is full", { status: 400 });
   }
 
-  const icon = ["🪨", "✂️", "📃"][room.players.length] as "🪨" | "✂️" | "📃";
-  room.players.push({ playerId, name, icon });
+  const icon = ["🪨", "📃", "✂️"][room.players.length] as "🪨" | "✂️" | "📃";
+  const player = { playerId, name, icon } as Player;
+  room.players.push(player);
 
   const headers = new Headers();
   headers.append("Set-Cookie", `roomId=${roomId}`);
   headers.append("Set-Cookie", `name=${name}`);
   headers.append("Set-Cookie", `icon=${encodeURIComponent(icon)}`);
   headers.append("Set-Cookie", `playerId=${playerId}`);
-  return new Response(JSON.stringify(room), { status: 200, headers });
+  return new Response(JSON.stringify({ room, player }), {
+    status: 200,
+    headers,
+  });
 }
 
 async function getJoinRoom(

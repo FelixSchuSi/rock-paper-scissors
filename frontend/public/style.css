@@ -11,6 +11,10 @@ body {
 }
 
 .main-content.prep-phase-active {
+  cursor: not-allowed;
+}
+
+.main-content.is-players-turn {
   cursor: none;
 }
 
@@ -65,7 +69,19 @@ html {
 .start-screen {
   width: 100%;
   height: 100%;
+}
+
+.start-screen-wrapper {
+  padding: 1em;
+}
+
+.row {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 1em;
+}
+
+input {
+  flex-shrink: 2;
+  flex-grow: 1;
+  width: 20%;
 }
