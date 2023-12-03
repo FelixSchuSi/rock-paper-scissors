@@ -21,9 +21,9 @@ export async function joinRoom() {
   STATE.room = content.room;
   document.querySelector(".start-screen")!.classList.add("hidden");
   const socket = new WebSocket(
-    `ws://${location.hostname}${
-      location.port !== "" ? `:${location.port}` : ""
-    }/join-room`
+    `${location.protocol === "https://" ? "wss://" : "ws://"}${
+      location.hostname
+    }${location.port !== "" ? `:${location.port}` : ""}/join-room`
   );
   socket.addEventListener("message", webSocketMessageHandler);
   window.addEventListener("item-placed", (e) => {
