@@ -1,3 +1,4 @@
+import { STATE } from ".";
 import { getTick } from "../../shared/src/tick";
 import { Item } from "../../shared/src/types/item";
 import {
@@ -8,6 +9,7 @@ import { canvas } from "./canvas";
 import { PreparationPhaseController } from "./preparation-phase-controller";
 
 let preparationPhaseController: PreparationPhaseController | undefined;
+let simulationAbortController: AbortController | undefined;
 
 export function webSocketMessageHandler(event: MessageEvent<string>) {
   const data = JSON.parse(event.data) as WebSocketMessage;
@@ -18,10 +20,10 @@ export function webSocketMessageHandler(event: MessageEvent<string>) {
     return;
   }
   if (type === WebSocketMessageType.PLAYER_JOINED) {
-    return;
+    handlePlayerJoined(data);
   }
   if (type === WebSocketMessageType.ALL_PLAYERS_JOINED) {
-    handleAllPlayersJoined();
+    handleAllPlayersJoined(data);
   }
   if (type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
     handlePlayerPlacedItems(data);
@@ -31,8 +33,10 @@ export function webSocketMessageHandler(event: MessageEvent<string>) {
   }
 }
 
-function handleAllPlayersJoined() {
+function handleAllPlayersJoined(data: WebSocketMessage) {
+  simulationAbortController?.abort();
   document.querySelector(".invite-screen")!.classList.add("hidden");
+  STATE.room = data.room;
   preparationPhaseController = new PreparationPhaseController();
   preparationPhaseController.activePlayerItem = "🪨";
 }
@@ -50,6 +54,21 @@ function handleAllItemsPlaced(data: WebSocketMessage) {
   preparationPhaseController.completePrepPhase();
   preparationPhaseController = undefined;
 
-  const { tick } = getTick(data.room.items, canvas, window);
+  simulationAbortController = new AbortController();
+  const { tick } = getTick(
+    data.room.items,
+    canvas,
+    window,
+    simulationAbortController
+  );
   tick();
+}
+
+function handlePlayerJoined(data: WebSocketMessage) {
+  simulationAbortController?.abort();
+  STATE.room = data.room;
+  STATE.playerIcon = data.room.players.find(
+    (player) => player.playerId === STATE.playerId
+  )?.icon;
+  document.querySelector(".invite-code")!.textContent = STATE.room.roomId;
 }

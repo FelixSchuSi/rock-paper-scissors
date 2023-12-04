@@ -38,4 +38,21 @@ export async function createRoom() {
     console.log("clientside sending message", message);
     socket.send(JSON.stringify(message));
   });
+  document.querySelectorAll(".restart-btn")!.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const message: WebSocketMessage = {
+        type: "START_REMATCH",
+        data: {},
+        fromPlayerId: STATE.playerId,
+        room: STATE.room!,
+      };
+      socket.send(JSON.stringify(message));
+
+      document.querySelector(".invite-screen")!.classList.remove("hidden");
+      document
+        .querySelectorAll(".final-screen")
+        .forEach((e) => e.classList.add("hidden"));
+      document.querySelector("canvas")!.classList.remove("blurry");
+    });
+  });
 }

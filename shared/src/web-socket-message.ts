@@ -6,6 +6,7 @@ export const WebSocketMessageType = Object.freeze({
   ALL_PLAYERS_JOINED: "ALL_PLAYERS_JOINED",
   PLAYER_PLACED_ITEM: "PLAYER_PLACED_ITEM",
   ALL_ITEMS_PLACED: "ALL_ITEMS_PLACED",
+  START_REMATCH: "START_REMATCH",
 });
 
 export type WebSocketMessageType =
