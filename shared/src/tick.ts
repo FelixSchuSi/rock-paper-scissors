@@ -93,7 +93,10 @@ export function getTick(
     canvas?.clear();
     canvas?.drawItems(items);
 
-    if (abortController?.signal.aborted === true) return;
+    if (abortController?.signal.aborted === true) {
+      canvas?.clear();
+      return;
+    }
 
     if (!gameFinished && items.every((item) => item.text === items[0].text)) {
       gameFinished = true;
