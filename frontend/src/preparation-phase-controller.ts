@@ -71,6 +71,8 @@ export class PreparationPhaseController {
     if (!this.isItPlayersTurn) return;
     if (!this.isInPrepPhase) return;
     if (this.isMouseDown) return;
+    if (this.prepItems.at(-1)?.text == this._activePlayerItem) return;
+
     const mousePosition = canvas.getMousePosition(e);
     canvas.clear();
     canvas.drawItem({
