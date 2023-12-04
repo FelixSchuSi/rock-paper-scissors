@@ -11,12 +11,13 @@ const successorGroups = new Map();
 
 export function handleRematch(
   playerSession: PlayerSession,
+  message: WebSocketMessage,
   server: Server,
   ws: ServerWebSocket<PlayerSession>
 ) {
   let newRoomId: string;
-  if (successorGroups.has(playerSession.roomId)) {
-    newRoomId = successorGroups.get(playerSession.roomId);
+  if (successorGroups.has(message.room.roomId)) {
+    newRoomId = successorGroups.get(message.room.roomId);
     const newRoom = rooms.get(newRoomId);
     if (!newRoom) return;
     newRoom.players.push({
@@ -26,7 +27,7 @@ export function handleRematch(
     } as Player);
   } else {
     newRoomId = crypto.randomUUID();
-    successorGroups.set(playerSession.roomId, newRoomId);
+    successorGroups.set(message.room.roomId, newRoomId);
     const player = {
       name: playerSession.name,
       icon: "🪨",
@@ -57,6 +58,20 @@ export function handleRematch(
 
   server.publish(newRoomId, JSON.stringify(playerJoinedMessage));
   ws.subscribe(newRoomId);
+
+  const rematchResponseMessage: WebSocketMessage = {
+    type: WebSocketMessageType.REMATCH_RESPONSE,
+    data: {
+      message: `player ${playerSession.name} ${icon} joined the room`,
+      name: playerSession.name,
+      icon,
+      playerId: playerSession.playerId,
+    },
+    fromPlayerId: playerSession.playerId,
+    room: newRoom,
+  };
+
+  ws.send(JSON.stringify(rematchResponseMessage));
 
   if (newRoom.players.length < 3) return;
   const allPlayersJoinedMessage: WebSocketMessage = {
