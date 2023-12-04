@@ -1,7 +1,10 @@
 import { STATE } from ".";
 import { Player } from "../../shared/src/types/player";
 import { Room } from "../../shared/src/types/room";
-import { WebSocketMessage } from "../../shared/src/web-socket-message";
+import {
+  WebSocketMessage,
+  WebSocketMessageType,
+} from "../../shared/src/web-socket-message";
 import { webSocketMessageHandler } from "./web-socket-message-handler";
 
 export async function joinRoom() {
@@ -43,7 +46,7 @@ export async function joinRoom() {
   document.querySelectorAll(".restart-btn")!.forEach((btn) => {
     btn.addEventListener("click", () => {
       const message: WebSocketMessage = {
-        type: "START_REMATCH",
+        type: WebSocketMessageType.REMATCH_REQUEST,
         data: {},
         fromPlayerId: STATE.playerId,
         room: STATE.room!,

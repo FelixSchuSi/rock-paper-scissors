@@ -31,10 +31,12 @@ export function webSocketMessageHandler(event: MessageEvent<string>) {
   if (type === WebSocketMessageType.ALL_ITEMS_PLACED) {
     handleAllItemsPlaced(data);
   }
+  if (type === WebSocketMessageType.REMATCH_RESPONSE) {
+    handleRematchResponse(data);
+  }
 }
 
 function handleAllPlayersJoined(data: WebSocketMessage) {
-  simulationAbortController?.abort();
   document.querySelector(".invite-screen")!.classList.add("hidden");
   STATE.room = data.room;
   preparationPhaseController = new PreparationPhaseController();
@@ -65,6 +67,14 @@ function handleAllItemsPlaced(data: WebSocketMessage) {
 }
 
 function handlePlayerJoined(data: WebSocketMessage) {
+  STATE.room = data.room;
+  STATE.playerIcon = data.room.players.find(
+    (player) => player.playerId === STATE.playerId
+  )?.icon;
+  document.querySelector(".invite-code")!.textContent = STATE.room.roomId;
+}
+
+function handleRematchResponse(data: WebSocketMessage) {
   simulationAbortController?.abort();
   STATE.room = data.room;
   STATE.playerIcon = data.room.players.find(

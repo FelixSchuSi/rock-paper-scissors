@@ -57,8 +57,8 @@ const server = Bun.serve<PlayerSession>({
       if (webSocketMessage.type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
         handlePlayerPlacedItem(playerSession, webSocketMessage, room, server);
       }
-      if (webSocketMessage.type === WebSocketMessageType.START_REMATCH) {
-        handleRematch(playerSession, server, ws);
+      if (webSocketMessage.type === WebSocketMessageType.REMATCH_REQUEST) {
+        handleRematch(playerSession, webSocketMessage, server, ws);
       }
     },
     open(ws) {
