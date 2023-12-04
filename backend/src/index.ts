@@ -12,13 +12,14 @@ import {
 import { getAllFrontendFiles } from "./get-all-frontend-files";
 import { Player } from "../../shared/src/types/player";
 import { handlePlayerPlacedItem } from "./handle-player-placed-items.ts";
+import { handleRematch } from "./handle-rematch.ts";
 
 export interface PlayerSession extends Player {
   roomId: string;
 }
 
 const FRONTEND_FILES = getAllFrontendFiles();
-const rooms = new Map<string, Room>();
+export const rooms = new Map<string, Room>();
 
 const server = Bun.serve<PlayerSession>({
   fetch: async (req, server) => {
@@ -55,6 +56,9 @@ const server = Bun.serve<PlayerSession>({
 
       if (webSocketMessage.type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
         handlePlayerPlacedItem(playerSession, webSocketMessage, room, server);
+      }
+      if (webSocketMessage.type === WebSocketMessageType.START_REMATCH) {
+        handleRematch(playerSession, server, ws);
       }
     },
     open(ws) {
@@ -196,3 +200,5 @@ async function getJoinRoom(
   if (upgraded) return new Response("Ok", { status: 200 });
   return new Response("Internal Server Error", { status: 500 });
 }
+
+console.log("Server started");

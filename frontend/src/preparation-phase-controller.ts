@@ -20,7 +20,7 @@ export class PreparationPhaseController {
   public set activePlayerItem(value: "🪨" | "📃" | "✂️") {
     this._activePlayerItem = value;
     this.isItPlayersTurn = value === STATE.playerIcon;
-    console.log(this._activePlayerItem, this.isItPlayersTurn, value);
+    console.log(this._activePlayerItem, this.isItPlayersTurn, STATE.playerIcon);
 
     if (this.isItPlayersTurn) {
       this.mainContentElement.classList.add("is-players-turn");

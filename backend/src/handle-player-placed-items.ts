@@ -1,5 +1,5 @@
 import { Server } from "bun";
-import { PlayerSession } from ".";
+import { PlayerSession, rooms } from ".";
 import { Item } from "../../shared/src/types/item";
 import { Room } from "../../shared/src/types/room";
 import {
@@ -10,11 +10,13 @@ import {
 export function handlePlayerPlacedItem(
   playerSession: PlayerSession,
   message: WebSocketMessage,
-  room: Room,
+  _room: Room,
   server: Server
 ) {
   const items = message.data.items as Item[];
   const lastItem = items.at(-1);
+  const room = rooms.get(message.room.roomId);
+  if (room === undefined) return;
   const playerIndex = room.players.find(
     (player) => player.playerId === message.fromPlayerId
   );
@@ -41,8 +43,6 @@ export function handlePlayerPlacedItem(
     fromPlayerId: playerSession.playerId,
     room: room,
   };
-
-  console.log("sending message", newMessage);
 
   server.publish(playerSession.roomId, JSON.stringify(newMessage));
 

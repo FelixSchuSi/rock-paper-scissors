@@ -11,7 +11,8 @@ import { round } from "./round";
 export function getTick(
   initialItems: Item[],
   canvas?: ICanvas,
-  window?: any
+  window?: any,
+  abortController?: AbortController
 ): {
   tick: () => void;
   items: Item[];
@@ -91,6 +92,8 @@ export function getTick(
 
     canvas?.clear();
     canvas?.drawItems(items);
+
+    if (abortController?.signal.aborted === true) return;
 
     if (!gameFinished && items.every((item) => item.text === items[0].text)) {
       gameFinished = true;
