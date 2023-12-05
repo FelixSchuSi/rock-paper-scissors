@@ -10,7 +10,7 @@ import {
 export function handlePlayerPlacedItem(
   playerSession: PlayerSession,
   message: WebSocketMessage,
-  _room: Room,
+
   server: Server
 ) {
   const items = message.data.items as Item[];
@@ -24,7 +24,7 @@ export function handlePlayerPlacedItem(
   if (playerSession.playerId != message.fromPlayerId) return;
   if (message.type !== WebSocketMessageType.PLAYER_PLACED_ITEM) return;
   if (items.length !== room.items.length + 1) return;
-  if (lastItem?.text !== playerSession.icon) return;
+  if (lastItem?.text !== playerIndex.icon) return;
 
   room.items.push(lastItem);
 
@@ -44,7 +44,7 @@ export function handlePlayerPlacedItem(
     room: room,
   };
 
-  server.publish(playerSession.roomId, JSON.stringify(newMessage));
+  server.publish(room.roomId, JSON.stringify(newMessage));
 
   if (areAllItemsPlaced(room.items)) {
     const newMessage: WebSocketMessage = {
@@ -53,7 +53,7 @@ export function handlePlayerPlacedItem(
       fromPlayerId: playerSession.playerId,
       room: room,
     };
-    server.publish(playerSession.roomId, JSON.stringify(newMessage));
+    server.publish(room.roomId, JSON.stringify(newMessage));
   }
 }
 
