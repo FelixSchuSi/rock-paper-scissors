@@ -1,8 +1,4 @@
 import { Server } from "bun";
-import { generateRandomItem } from "../../shared/src/generate-random-item";
-import { hashItems } from "../../shared/src/hash";
-import { getTick } from "../../shared/src/tick";
-import { Item } from "../../shared/src/types/item";
 import { Room } from "../../shared/src/types/room";
 import { getCookies } from "./get-cookies";
 import {
@@ -26,9 +22,6 @@ const server = Bun.serve<PlayerSession>({
     let url = new URL(req.url);
     if (url.pathname === "/") url.pathname = "/index.html";
 
-    if (url.pathname === "/start" && req.method === "POST") {
-      return await postHandleStart(req);
-    }
     if (url.pathname === "/create-room" && req.method === "POST") {
       return await postCreateRoom(req);
     }
@@ -50,12 +43,9 @@ const server = Bun.serve<PlayerSession>({
         message as string
       ) as WebSocketMessage;
       const playerSession = ws.data;
-      const room = rooms.get(playerSession.roomId);
-
-      if (room === undefined) return;
 
       if (webSocketMessage.type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
-        handlePlayerPlacedItem(playerSession, webSocketMessage, room, server);
+        handlePlayerPlacedItem(playerSession, webSocketMessage, server);
       }
       if (webSocketMessage.type === WebSocketMessageType.REMATCH_REQUEST) {
         handleRematch(playerSession, webSocketMessage, server, ws);
@@ -104,26 +94,6 @@ const server = Bun.serve<PlayerSession>({
     // drain(ws) {},
   },
 });
-
-async function postHandleStart(request: Request): Promise<Response> {
-  const stones = await request.json();
-  const initialItems: Item[] = [
-    ...stones,
-    generateRandomItem("✂️"),
-    generateRandomItem("✂️"),
-    generateRandomItem("✂️"),
-    generateRandomItem("📃"),
-    generateRandomItem("📃"),
-    generateRandomItem("📃"),
-  ];
-
-  const { tick, items } = getTick(globalThis.structuredClone(initialItems));
-  tick();
-
-  const resultHash = await hashItems(items);
-
-  return new Response(JSON.stringify({ items, initialItems, resultHash }));
-}
 
 async function postCreateRoom(request: Request): Promise<Response> {
   const { name, playerId } = await request.json();

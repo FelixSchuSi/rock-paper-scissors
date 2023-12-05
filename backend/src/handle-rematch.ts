@@ -16,21 +16,24 @@ export function handleRematch(
   ws: ServerWebSocket<PlayerSession>
 ) {
   let newRoomId: string;
+  let icon: "🪨" | "✂️" | "📃";
   if (successorGroups.has(message.room.roomId)) {
     newRoomId = successorGroups.get(message.room.roomId);
     const newRoom = rooms.get(newRoomId);
     if (!newRoom) return;
+    icon = ["🪨", "📃", "✂️"][newRoom.players.length] as "🪨" | "✂️" | "📃";
     newRoom.players.push({
       name: playerSession.name,
-      icon: ["🪨", "📃", "✂️"][newRoom.players.length] as "🪨" | "✂️" | "📃",
+      icon,
       playerId: playerSession.playerId,
     } as Player);
   } else {
     newRoomId = crypto.randomUUID();
     successorGroups.set(message.room.roomId, newRoomId);
+    icon = "🪨";
     const player = {
       name: playerSession.name,
-      icon: "🪨",
+      icon,
       playerId: playerSession.playerId,
     } as Player;
     const room: Room = {
@@ -43,7 +46,6 @@ export function handleRematch(
   const newRoom = rooms.get(newRoomId);
   if (!newRoom) return;
 
-  const icon = ["🪨", "📃", "✂️"][newRoom.players.length] as "🪨" | "✂️" | "📃";
   const playerJoinedMessage: WebSocketMessage = {
     type: WebSocketMessageType.PLAYER_JOINED,
     data: {
