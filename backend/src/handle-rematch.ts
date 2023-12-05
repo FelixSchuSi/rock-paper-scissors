@@ -15,6 +15,7 @@ export function handleRematch(
   server: Server,
   ws: ServerWebSocket<PlayerSession>
 ) {
+  // TODO: this should be a rest endpoint so that we can use Playersession data
   let newRoomId: string;
   let icon: "🪨" | "✂️" | "📃";
   if (successorGroups.has(message.room.roomId)) {
