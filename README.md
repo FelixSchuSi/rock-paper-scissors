@@ -6,7 +6,7 @@ totally trash game with rocks and papers and scissors
 
 ## demo
 
-![demo](./demo.mp4)
+https://github.com/FelixSchuSi/rock-paper-scissors/assets/47390169/fd872df5-fa00-47eb-a388-d502b5108b49
 
 ## run backend
 
