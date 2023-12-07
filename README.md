@@ -1,6 +1,12 @@
 # rock-paper-scissors
 
-<https://felixschusi.github.io/rock-paper-scissors/>
+totally trash game with rocks and papers and scissors
+
+<https://rock-paper-scissors-production-3751.up.railway.app/>
+
+## demo
+
+![demo](./demo.mp4)
 
 ## run backend
 
