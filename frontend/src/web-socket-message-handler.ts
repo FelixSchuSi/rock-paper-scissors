@@ -9,7 +9,7 @@ import { canvas } from "./canvas";
 import { PreparationPhaseController } from "./preparation-phase-controller";
 
 let preparationPhaseController: PreparationPhaseController | undefined;
-let simulationAbortController: AbortController | undefined;
+export let simulationAbortController: AbortController | undefined;
 
 export function webSocketMessageHandler(event: MessageEvent<string>) {
   const data = JSON.parse(event.data) as WebSocketMessage;
@@ -30,9 +30,6 @@ export function webSocketMessageHandler(event: MessageEvent<string>) {
   }
   if (type === WebSocketMessageType.ALL_ITEMS_PLACED) {
     handleAllItemsPlaced(data);
-  }
-  if (type === WebSocketMessageType.REMATCH_RESPONSE) {
-    handleRematchResponse(data);
   }
 }
 
@@ -67,15 +64,6 @@ function handleAllItemsPlaced(data: WebSocketMessage) {
 }
 
 function handlePlayerJoined(data: WebSocketMessage) {
-  STATE.room = data.room;
-  STATE.playerIcon = data.room.players.find(
-    (player) => player.playerId === STATE.playerId
-  )?.icon;
-  document.querySelector(".invite-code")!.textContent = STATE.room.roomId;
-}
-
-function handleRematchResponse(data: WebSocketMessage) {
-  simulationAbortController?.abort();
   STATE.room = data.room;
   STATE.playerIcon = data.room.players.find(
     (player) => player.playerId === STATE.playerId

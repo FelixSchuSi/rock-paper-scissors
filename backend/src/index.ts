@@ -8,30 +8,36 @@ import {
 import { getAllFrontendFiles } from "./get-all-frontend-files";
 import { Player } from "../../shared/src/types/player";
 import { handlePlayerPlacedItem } from "./handle-player-placed-items.ts";
-import { handleRematch } from "./handle-rematch.ts";
 
-export interface PlayerSession extends Player {
+export interface PlayerSession {
   roomId: string;
+  name: string;
+  icon: "🪨" | "✂️" | "📃";
+  playerId: string;
 }
 
 const FRONTEND_FILES = getAllFrontendFiles();
 export const rooms = new Map<string, Room>();
+const successorGroups = new Map<string, string>();
 
 const server = Bun.serve<PlayerSession>({
-  fetch: async (req, server) => {
-    let url = new URL(req.url);
+  fetch: async (request, server) => {
+    let url = new URL(request.url);
     if (url.pathname === "/") url.pathname = "/index.html";
 
-    if (url.pathname === "/create-room" && req.method === "POST") {
-      return await postCreateRoom(req);
+    if (url.pathname === "/create-room" && request.method === "POST") {
+      return await postCreateRoom(request);
     }
-    if (url.pathname === "/join-room" && req.method === "POST") {
-      return await postJoinRoom(req);
+    if (url.pathname === "/join-room" && request.method === "POST") {
+      return await postJoinRoom(request);
     }
-    if (url.pathname === "/join-room" && req.method === "GET") {
-      return await getJoinRoom(req, server);
+    if (url.pathname === "/upgrade" && request.method === "GET") {
+      return await getUpgrade(request, server);
     }
-    if (FRONTEND_FILES.has(url.pathname) && req.method === "GET") {
+    if (url.pathname === "/rematch" && request.method === "POST") {
+      return await getRematch(request);
+    }
+    if (FRONTEND_FILES.has(url.pathname) && request.method === "GET") {
       return new Response(Bun.file(`frontend/public${url.pathname}`));
     }
 
@@ -46,9 +52,6 @@ const server = Bun.serve<PlayerSession>({
 
       if (webSocketMessage.type === WebSocketMessageType.PLAYER_PLACED_ITEM) {
         handlePlayerPlacedItem(playerSession, webSocketMessage, server);
-      }
-      if (webSocketMessage.type === WebSocketMessageType.REMATCH_REQUEST) {
-        handleRematch(playerSession, webSocketMessage, server, ws);
       }
     },
     open(ws) {
@@ -89,9 +92,34 @@ const server = Bun.serve<PlayerSession>({
       server.publish(roomId, JSON.stringify(allPlayersJoinedMessage));
     },
     // a socket is closed
-    // close(ws, code, message) {},
-    // the socket is ready to receive more data
-    // drain(ws) {},
+    close(ws) {
+      const { roomId, playerId } = ws.data;
+      const room = rooms.get(roomId);
+      if (!room) return;
+
+      const player = room.players.find(
+        (player) => player.playerId === playerId
+      );
+      if (!player) return;
+      room.players = room.players.filter(
+        (player) => player.playerId !== playerId
+      );
+      rooms.set(roomId, room);
+
+      const playerLeftMessage: WebSocketMessage = {
+        type: WebSocketMessageType.PLAYER_LEFT,
+        data: {
+          message: `player ${player.name} ${player.icon} left the room`,
+          name: player.name,
+          icon: player.icon,
+          playerId: player.playerId,
+        },
+        fromPlayerId: player.playerId,
+        room,
+      };
+
+      server.publish(roomId, JSON.stringify(playerLeftMessage));
+    },
   },
 });
 
@@ -143,10 +171,7 @@ async function postJoinRoom(request: Request): Promise<Response> {
   });
 }
 
-async function getJoinRoom(
-  request: Request,
-  server: Server
-): Promise<Response> {
+async function getUpgrade(request: Request, server: Server): Promise<Response> {
   const { icon, roomId, name, playerId } = getCookies(request.headers);
   const room = rooms.get(roomId);
 
@@ -169,6 +194,52 @@ async function getJoinRoom(
 
   if (upgraded) return new Response("Ok", { status: 200 });
   return new Response("Internal Server Error", { status: 500 });
+}
+
+async function getRematch(request: Request) {
+  const { roomId, name, playerId } = await request.json();
+  if (!roomId || !name || !playerId) {
+    return new Response("Bad Request", { status: 400 });
+  }
+
+  const room = rooms.get(successorGroups.get(roomId) ?? "") ?? {
+    roomId: crypto.randomUUID(),
+    items: [],
+    players: [],
+  };
+
+  if (room.players.find((player) => player.playerId === playerId)) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  if (room.players.length >= 3) {
+    return new Response("Room is full", { status: 400 });
+  }
+
+  const player = {
+    name,
+    icon: ["🪨", "📃", "✂️"][room.players.length] as "🪨" | "✂️" | "📃",
+    playerId,
+  };
+
+  room.players.push(player);
+  rooms.set(room.roomId, room);
+  successorGroups.set(roomId, room.roomId);
+
+  if (room.players.length >= 3) {
+    successorGroups.delete(roomId);
+    rooms.delete(roomId);
+  }
+
+  const headers = new Headers();
+  headers.append("Set-Cookie", `roomId=${room.roomId}`);
+  headers.append("Set-Cookie", `name=${name}`);
+  headers.append("Set-Cookie", `icon=${encodeURIComponent(player.icon)}`);
+  headers.append("Set-Cookie", `playerId=${playerId}`);
+  return new Response(JSON.stringify({ room, player }), {
+    status: 200,
+    headers,
+  });
 }
 
 console.log("Server started");

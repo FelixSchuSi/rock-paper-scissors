@@ -1,7 +1,6 @@
 import { Server } from "bun";
 import { PlayerSession, rooms } from ".";
 import { Item } from "../../shared/src/types/item";
-import { Room } from "../../shared/src/types/room";
 import {
   WebSocketMessage,
   WebSocketMessageType,
@@ -10,7 +9,6 @@ import {
 export function handlePlayerPlacedItem(
   playerSession: PlayerSession,
   message: WebSocketMessage,
-
   server: Server
 ) {
   const items = message.data.items as Item[];
