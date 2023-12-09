@@ -1,11 +1,10 @@
 import { STATE } from ".";
-import { getTick } from "../../shared/src/tick";
 import { Item } from "../../shared/src/types/item";
 import {
   WebSocketMessage,
   WebSocketMessageType,
 } from "../../shared/src/web-socket-message";
-import { canvas } from "./canvas";
+import { initGameLoop } from "./game-loop";
 import { PreparationPhaseController } from "./preparation-phase-controller";
 
 let preparationPhaseController: PreparationPhaseController | undefined;
@@ -54,13 +53,8 @@ function handleAllItemsPlaced(data: WebSocketMessage) {
   preparationPhaseController = undefined;
 
   simulationAbortController = new AbortController();
-  const { tick } = getTick(
-    data.room.items,
-    canvas,
-    window,
-    simulationAbortController
-  );
-  tick();
+  const gameLoop = initGameLoop(structuredClone(data.room.items));
+  gameLoop();
 }
 
 function handlePlayerJoined(data: WebSocketMessage) {
