@@ -5,8 +5,10 @@ import {
   WebSocketMessage,
   WebSocketMessageType,
 } from "../../shared/src/web-socket-message";
+import { initGameLoop } from "./run-simulation";
+import { hashItems } from "../../shared/src/hash";
 
-export function handlePlayerPlacedItem(
+export async function handlePlayerPlacedItem(
   playerSession: PlayerSession,
   message: WebSocketMessage,
   server: Server
@@ -45,9 +47,20 @@ export function handlePlayerPlacedItem(
   server.publish(room.roomId, JSON.stringify(newMessage));
 
   if (areAllItemsPlaced(room.items)) {
+    const finalItems = structuredClone(room.items);
+    const gameLoop = initGameLoop(finalItems);
+    gameLoop();
+
+    const simulationResult = {
+      finalItems,
+      winner: finalItems[0].text,
+      finalHash: await hashItems(finalItems),
+      initialHash: await hashItems(room.items),
+    };
+
     const newMessage: WebSocketMessage = {
       type: WebSocketMessageType.ALL_ITEMS_PLACED,
-      data: { items: room.items },
+      data: { items: room.items, simulationResult },
       fromPlayerId: playerSession.playerId,
       room: room,
     };
